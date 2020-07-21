@@ -13,7 +13,7 @@ from sqlalchemy.orm import sessionmaker
 
 
 def startChatBot(chan):
-    print('Chat bot starting', file=name)
+    print('Chat bot starting')
     s = socket.socket()
     s.connect((config.HOST_TW, config.PORT_TW))
     s.send('PASS {}\r\n'.format(config.PASS_TW).encode('utf-8'))
@@ -21,12 +21,12 @@ def startChatBot(chan):
     s.send('JOIN #{}\r\n'.format(chan).encode('utf-8'))
     time.strftime("%I:%M %B %d %Y")
 
-    print("Bot started", file=name)
+    print("Bot started")
     timecount = time.time()
     thread.start_new_thread(utils.fillOpList, (chan,))
 
     while True:
-        if time.time() - timecount >= 30*60:
+        if time.time() - timecount >= 15*60:
             utils.mess(s, chan, '=> https://discord.gg/UnUhDNz <=')
             timecount = time.time()
 
@@ -40,20 +40,20 @@ def startChatBot(chan):
             try:
                 username = str(response).split('!')[0][1:]
             except Exception as x:
-                print('==achtung==achtung==achtung==achtung==achtung==achtung==achtung=='.upper(), file=name)
-                print('===== Exeption =====', file=name)
+                print('==achtung==achtung==achtung==achtung==achtung==achtung==achtung=='.upper())
+                print('===== Exeption =====')
                 print(x, x.args)
-                print('===== Exeption =====', file=name)
-                print('===== Response =====', file=name)
+                print('===== Exeption =====')
+                print('===== Response =====')
                 print(response, end='')
-                print('===== Response =====', file=name)
-                print('===== Username =====', file=name)
+                print('===== Response =====')
+                print('===== Username =====')
                 print(username)
-                print('===== Username =====', file=name)
-                print('==achtung==achtung==achtung==achtung==achtung==achtung==achtung=='.upper(), file=name)
+                print('===== Username =====')
+                print('==achtung==achtung==achtung==achtung==achtung==achtung==achtung=='.upper())
             message = str(response).split('#%s :' % chan)[-1].strip()
-            print('\n "%s"' % message, sep='', file=name)
-            print('\n "%s"' % username, sep='', file=name)
+            print('\n "%s"' % message, sep='')
+            print('\n "%s"' % username, sep='')
             if message == '!discord':
                 utils.mess(s, chan, "=>https://discord.gg/UnUhDNz<=")
             if message.strip() == "!test" and utils.isOp(username):
@@ -64,10 +64,10 @@ def startChatBot(chan):
 
 if __name__ == '__main__':
     name = os.path.join('logs', 'log_%s.txt' % time.strftime("%H:%M_%m.%d.%Y"))
-    file = open(name, 'w')
+    #file = open(name, 'w')
     #file.close()
-    sys.stdout = file
-    sys.stderr = file
+    #sys.stdout = file
+    #sys.stderr = file
     parser = argparse.ArgumentParser(description='Test')
     parser.add_argument("--test", default=False, help="Test mod")
     test = parser.parse_args().test
