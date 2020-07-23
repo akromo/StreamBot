@@ -26,7 +26,7 @@ def startChatBot(chan):
     thread.start_new_thread(utils.fillOpList, (chan,))
 
     while True:
-        if time.time() - timecount >= 15*60:
+        if time.time() - timecount >= 25*60:
             utils.mess(s, chan, '=> https://discord.gg/UnUhDNz <=')
             timecount = time.time()
 
@@ -64,10 +64,9 @@ def startChatBot(chan):
 
 if __name__ == '__main__':
     name = os.path.join('logs', 'log_%s.txt' % time.strftime("%H:%M_%m.%d.%Y"))
-    #file = open(name, 'w')
-    #file.close()
-    #sys.stdout = file
-    #sys.stderr = file
+    file = open(name, 'w')
+    sys.stdout = file
+    sys.stderr = file
     parser = argparse.ArgumentParser(description='Test')
     parser.add_argument("--test", default=False, help="Test mod")
     test = parser.parse_args().test
