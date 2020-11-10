@@ -39,8 +39,8 @@ def startChatBot(chan):
             try:
                 username = str(rawResponse).split('!')[0][1:]
                 message = str(rawResponse).split('#%s :' % chan)[-1].strip()
-                print('\n "%s"' % username, sep='')
-                print('\n "%s"' % message, sep='', end='=====================================')
+                print(time.strftime("%H:%M:%S") + ' "%s":' % username, sep='')
+                print('"%s"' % message, sep='', end='\n=====================================\n')
             except Exception as x:
                 print('==achtung==achtung==achtung==achtung==achtung==achtung==achtung=='.upper())
                 print('===== Exeption start =====')

@@ -2,3 +2,4 @@ venv
 /logs/
 config.py
 Data.db
+tests.py
