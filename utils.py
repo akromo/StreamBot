@@ -26,8 +26,8 @@ def mess(sock, channel, message):
     sock.send("PRIVMSG #{} :{}\r\n".format(channel, message).encode('utf-8'))
 
 
-def ban(sock, channel, user):
-    mess(sock, channel, '.ban {}'.format(user))
+def ban(sock, channel, user, reason):
+    mess(sock, channel, '.ban {} {}'.format(user, reason))
 
 
 def timeout(sock, user, seconds=500):

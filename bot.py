@@ -26,11 +26,11 @@ def startChatBot(chan):
 
     while True:
         if time.time() - timecount >= 25*60:
-            utils.mess(s, chan, '=> https://discord.gg/UnUhDNz <=')
+            utils.mess(s, chan, 'MEMES AND ANNONCES => https://discord.gg/UnUhDNz <=')
             timecount = time.time()
 
         rawResponse = s.recv(1024).decode('utf-8')
-        #print('\n', response, sep='', end='=====================================')
+        print('===== Start of rawResponse =====\n', rawResponse, end='===== End of rawResponse =====\n')
 
         if str(rawResponse)[0:19] in 'PING :tmi.twitch.tv':
             s.send("PONG :tmi.twitch.tv\r\n".encode('utf-8'))
@@ -57,10 +57,11 @@ def startChatBot(chan):
             if message == '!discord':
                 utils.mess(s, chan, "=>https://discord.gg/UnUhDNz<=")
             if message.strip() == "!test" and utils.isOp(username):
-                utils.mess(s, chan, "=>https://discord.gg/UnUhDNz<=(test)")
+                utils.mess(s, chan, "test?")
             if 'bigfollows' in message.lower():
-                utils.ban(s, chan, username)
-                utils.mess(s, chan, ('User: "%s" was banned for the Horde' % username))
+                reason = 'Реклама bigfollows.com'
+                utils.ban(s, chan, username, reason)
+                print('User: "%s" was banned for the "%s"' % (username, reason))
 
         time.sleep(1)
 
