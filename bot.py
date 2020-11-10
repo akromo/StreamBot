@@ -1,6 +1,5 @@
 import sys
 import os
-
 import utils
 import argparse
 import config
@@ -30,34 +29,38 @@ def startChatBot(chan):
             utils.mess(s, chan, '=> https://discord.gg/UnUhDNz <=')
             timecount = time.time()
 
-        response = s.recv(1024).decode('utf-8')
-        print('\n', response, sep='', end='=====================================')
+        rawResponse = s.recv(1024).decode('utf-8')
+        #print('\n', response, sep='', end='=====================================')
 
-        if str(response)[0:19] in 'PING :tmi.twitch.tv':
+        if str(rawResponse)[0:19] in 'PING :tmi.twitch.tv':
             s.send("PONG :tmi.twitch.tv\r\n".encode('utf-8'))
 
         else:
             try:
-                username = str(response).split('!')[0][1:]
+                username = str(rawResponse).split('!')[0][1:]
+                message = str(rawResponse).split('#%s :' % chan)[-1].strip()
+                print('\n "%s"' % username, sep='')
+                print('\n "%s"' % message, sep='', end='=====================================')
             except Exception as x:
                 print('==achtung==achtung==achtung==achtung==achtung==achtung==achtung=='.upper())
-                print('===== Exeption =====')
+                print('===== Exeption start =====')
                 print(x, x.args)
-                print('===== Exeption =====')
-                print('===== Response =====')
-                print(response, end='')
-                print('===== Response =====')
+                print('===== Exeption  end =====')
+                print('===== Response start =====')
+                print(rawResponse, end='')
+                print('===== Response end =====')
                 print('===== Username =====')
                 print(username)
                 print('===== Username =====')
                 print('==achtung==achtung==achtung==achtung==achtung==achtung==achtung=='.upper())
-            message = str(response).split('#%s :' % chan)[-1].strip()
-            print('\n "%s"' % message, sep='')
-            print('\n "%s"' % username, sep='')
+
             if message == '!discord':
                 utils.mess(s, chan, "=>https://discord.gg/UnUhDNz<=")
             if message.strip() == "!test" and utils.isOp(username):
                 utils.mess(s, chan, "=>https://discord.gg/UnUhDNz<=(test)")
+            if 'bigfollows' in message.lower():
+                utils.ban(s, username)
+                utils.mess(s, chan, ('User: "%s" was banned for the Horde' % username))
 
         time.sleep(1)
 
