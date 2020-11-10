@@ -30,7 +30,7 @@ def startChatBot(chan):
             timecount = time.time()
 
         rawResponse = s.recv(1024).decode('utf-8')
-        print('===== Start of rawResponse =====\n', rawResponse, end='===== End of rawResponse =====\n')
+        #print('===== Start of rawResponse =====\n', rawResponse, end='===== End of rawResponse =====\n')
 
         if str(rawResponse)[0:19] in 'PING :tmi.twitch.tv':
             s.send("PONG :tmi.twitch.tv\r\n".encode('utf-8'))
@@ -58,24 +58,27 @@ def startChatBot(chan):
                 utils.mess(s, chan, "=>https://discord.gg/UnUhDNz<=")
             if message.strip() == "!test" and utils.isOp(username):
                 utils.mess(s, chan, "test?")
-            if 'bigfollows' in message.lower():
-                reason = 'Реклама bigfollows.com'
+            if ('bigfollows' in message.lower()) and ('com' in message.lower()):
+                reason = 'Advertising'
                 utils.ban(s, chan, username, reason)
-                print('User: "%s" was banned for the "%s"' % (username, reason))
+                print('User: "%s" was banned for the "%s"' % (username, reason), end='\n=====================================\n')
 
         time.sleep(1)
 
 
 if __name__ == '__main__':
+    print('Loading data')
     name = os.path.join('logs', 'log_%s.txt' % time.strftime("%H:%M_%m.%d.%Y"))
-    file = open(name, 'w')
-    sys.stdout = file
-    sys.stderr = file
+    #file = open(name, 'w')
+    #sys.stdout = file
+    #sys.stderr = file
     parser = argparse.ArgumentParser(description='Test')
     parser.add_argument("--test", default=False, help="Test mod")
     test = parser.parse_args().test
     engine = create_engine('sqlite:///Data.db', echo=False)
+    print('Try to get connection with data base')
     Session = sessionmaker(bind=engine)
+    print('Try to open session')
     isThreadRun = False
     if test:
         server = config.TEST_SERVER_ID_DIS
@@ -83,6 +86,7 @@ if __name__ == '__main__':
     else:
         server = config.MAIN_SERVER_ID_DIS
         channel = config.CHAN_TW
+        print('Mode default')
     session = Session()
     user = session.query(User).filter(User.user_login.in_([channel])).first()
     if user == None:
@@ -90,8 +94,10 @@ if __name__ == '__main__':
         session.commit()
         user = session.query(User).filter(User.user_login.in_([channel]).first())
         print('Add %s user to DB' % user)
+    else:
+        print('User %s is found' % user)
 
-
+    print('bot started')
     while True:
         status, info = utils.check_user(channel)
         if status == 0:
@@ -109,4 +115,4 @@ if __name__ == '__main__':
                 print('isThreadRun', isThreadRun)
             time.sleep(60)
         else:
-            time.sleep(10)
+            time.sleep(30)
