@@ -59,7 +59,7 @@ def startChatBot(chan):
             if message.strip() == "!test" and utils.isOp(username):
                 utils.mess(s, chan, "=>https://discord.gg/UnUhDNz<=(test)")
             if 'bigfollows' in message.lower():
-                utils.ban(s, username)
+                utils.ban(s, chan, username)
                 utils.mess(s, chan, ('User: "%s" was banned for the Horde' % username))
 
         time.sleep(1)

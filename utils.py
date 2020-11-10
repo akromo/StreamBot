@@ -15,18 +15,19 @@ def send_message(channel, message):
     r.raise_for_status()
 
 
-def mess(sock, chan, message):
+def mess(sock, channel, message):
     """
     Отправляет сообщение message в чат канала config.CHAN_TW
+    :param channel: канал в который будет отправленно сообщение
     :param sock: Сокет через который будет отправляться сообщение
     :param message: Сообщение которое будет отправлено
     :return: Ничего не возвращает
     """
-    sock.send("PRIVMSG #{} :{}\r\n".format(chan, message).encode('utf-8'))
+    sock.send("PRIVMSG #{} :{}\r\n".format(channel, message).encode('utf-8'))
 
 
-def ban(sock, user):
-    mess(sock, '.ban {}'.format(user))
+def ban(sock, channel, user):
+    mess(sock, channel, '.ban {}'.format(user))
 
 
 def timeout(sock, user, seconds=500):
