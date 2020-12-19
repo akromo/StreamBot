@@ -95,7 +95,7 @@ def check_user(user):
             user = refreshToken(user)
         info = r.json()
 
-        if info.get('data') is None:
+        if not info.get('data'):
             print(time.asctime() + ': Stream offline')
             status = 1
         else:

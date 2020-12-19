@@ -103,8 +103,8 @@ if __name__ == '__main__':
         if status == 0:
             if info['data'][0]['started_at'] != user.date:
                 print('Отправляю уведомление')
-                #utils.send_message(server, '@everyone %s https://www.twitch.tv/rocksun_wow' %
-                             #info['data'][0]['title'])
+                utils.send_message(server, '@everyone %s https://www.twitch.tv/rocksun_wow' %
+                             info['data'][0]['title'])
                 user.date = info['data'][0]['started_at']
                 print('Уведомление отправленно \nNew time: %s' % user.date)
                 session.commit()
