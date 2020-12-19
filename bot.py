@@ -23,10 +23,9 @@ def startChatBot(chan):
     print("Bot started")
     timecount = time.time()
     thread.start_new_thread(utils.fillOpList, (chan,))
-
     while True:
         if time.time() - timecount >= 25*60:
-            utils.mess(s, chan, 'MEMES AND ANNONCES => https://discord.gg/UnUhDNz <=')
+            utils.mess(s, chan, 'MEMES AND ANNOUNCES => https://discord.gg/UnUhDNz <=')
             timecount = time.time()
 
         rawResponse = s.recv(1024).decode('utf-8')
@@ -90,7 +89,7 @@ if __name__ == '__main__':
     session = Session()
     user = session.query(User).filter(User.user_login.in_([channel])).first()
     if user == None:
-        session.add(User(channel, 'none'))
+        session.add(User(channel, 'none', 'none'))
         session.commit()
         user = session.query(User).filter(User.user_login.in_([channel]).first())
         print('Add %s user to DB' % user)
@@ -99,12 +98,13 @@ if __name__ == '__main__':
 
     print('bot started')
     while True:
-        status, info = utils.check_user(channel)
+        status, info, user = utils.check_user(user)
+        session.commit()
         if status == 0:
             if info['data'][0]['started_at'] != user.date:
                 print('Отправляю уведомление')
-                utils.send_message(server, '@everyone %s https://www.twitch.tv/rocksun_wow' %
-                             info['data'][0]['title'])
+                #utils.send_message(server, '@everyone %s https://www.twitch.tv/rocksun_wow' %
+                             #info['data'][0]['title'])
                 user.date = info['data'][0]['started_at']
                 print('Уведомление отправленно \nNew time: %s' % user.date)
                 session.commit()

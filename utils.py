@@ -1,6 +1,6 @@
 import config
 import time
-from requests import post, get, exceptions
+from requests import post, get, exceptions, HTTPError
 
 
 def send_message(channel, message):
@@ -67,21 +67,32 @@ def isOp(user):
     """
     return config.oplist[user] == 'mod'
 
+def refreshToken(user):
+    scopes = "channel_subscriptions+channel:read:redemptions+bits:read"
+    postAcsess = "https://id.twitch.tv/oauth2/token?client_id=" + config.CLIENT_ID_TW \
+                 + "&client_secret=" + config.SECRET_TW + "&grant_type=client_credentials&scope=" + scopes
+    response = post(postAcsess).json()
+    user.twitchApiToken = response['access_token']
+    return user
 
-def check_user(channel):
+
+def check_user(user):
     """
     Проверка ведется ли в данный момент трансляция на канале CHAN_TW
     :return: (0: online / 1: offline / 2: not found / 3: error) и dict
     """
 
-    streamInfoURL = 'https://api.twitch.tv/helix/streams?user_login=' + channel
+    streamInfoURL = 'https://api.twitch.tv/helix/streams?user_login=' + user.user_login
     info = None
     status = 3
     sep = '='*50
     try:
         r = get(streamInfoURL, headers={"Client-ID": config.CLIENT_ID_TW,
-                                        'Authorization': 'Bearer '+config.AUTHORIZATION_TW})
-        r.raise_for_status()
+                                        'Authorization': 'Bearer '+user.twitchApiToken})
+        try:
+            r.raise_for_status()
+        except HTTPError:
+            user = refreshToken(user)
         info = r.json()
 
         if not info['data']:
@@ -100,5 +111,5 @@ def check_user(channel):
             if e.response.reason == 'Not Found' or e.response.reason == 'Unprocessable Entity':
                 status = 2
 
-    return status, info
+    return status, info, user
 
