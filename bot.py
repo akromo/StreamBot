@@ -10,10 +10,10 @@ from DBconfig import User
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-def getConnection(s, chan):
+def getConnection(s, connectChan):
     Session = sessionmaker(bind=engine)
     session = Session()
-    chanInfo = session.query(User).filter(User.user_login.in_([chan])).first()
+    chanInfo = session.query(User).filter(User.user_login.in_([connectChan])).first()
     # print(chanInfo.twitchApiToken)
     s.connect((config.HOST_TW, config.PORT_TW))
     s.send('PASS {}\r\n'.format(chanInfo.twitchApiToken).encode('utf-8'))
@@ -25,7 +25,7 @@ def getConnection(s, chan):
 def startChatBot(chan):
     print('Chat bot starting')
     s = socket.socket()
-    getConnection(s)
+    getConnection(s, chan)
 
     print("Bot started")
     timecount = time.time()
