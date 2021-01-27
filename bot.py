@@ -13,9 +13,10 @@ from sqlalchemy.orm import sessionmaker
 def getConnection(s, chan):
     Session = sessionmaker(bind=engine)
     session = Session()
-    user = session.query(User).filter(User.user_login.in_([chan])).first()
+    chanInfo = session.query(User).filter(User.user_login.in_([chan])).first()
+    # print(chanInfo.twitchApiToken)
     s.connect((config.HOST_TW, config.PORT_TW))
-    s.send('PASS {}\r\n'.format(user.twitchApiToken).encode('utf-8'))
+    s.send('PASS {}\r\n'.format(chanInfo.twitchApiToken).encode('utf-8'))
     s.send('NICK {}\r\n'.format(config.NICK_TW).encode('utf-8'))
     s.send('JOIN #{}\r\n'.format(chan).encode('utf-8'))
     time.strftime("%I:%M %B %d %Y")
