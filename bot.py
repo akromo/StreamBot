@@ -10,15 +10,18 @@ from DBconfig import User
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-
-def startChatBot(chan):
-    print('Chat bot starting')
-    s = socket.socket()
+def getConnection(s):
     s.connect((config.HOST_TW, config.PORT_TW))
     s.send('PASS {}\r\n'.format(config.PASS_TW).encode('utf-8'))
     s.send('NICK {}\r\n'.format(config.NICK_TW).encode('utf-8'))
     s.send('JOIN #{}\r\n'.format(chan).encode('utf-8'))
     time.strftime("%I:%M %B %d %Y")
+
+
+def startChatBot(chan):
+    print('Chat bot starting')
+    s = socket.socket()
+    getConnection(s)
 
     print("Bot started")
     timecount = time.time()
@@ -28,7 +31,10 @@ def startChatBot(chan):
             utils.mess(s, chan, 'MEMES AND ANNOUNCES => https://discord.gg/UnUhDNz <=')
             timecount = time.time()
 
-        rawResponse = s.recv(1024).decode('utf-8')
+        try:
+            rawResponse = s.recv(1024).decode('utf-8')
+        except ConnectionResetError:
+            getConnection(s)
         #print('===== Start of rawResponse =====\n', rawResponse, end='===== End of rawResponse =====\n')
 
         if str(rawResponse)[0:19] in 'PING :tmi.twitch.tv':
