@@ -10,16 +10,22 @@ from DBconfig import User
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
+
 def getConnection(s, connectChan):
+    chanInfo = getUser(connectChan)
+    print(chanInfo.twitchApiToken)
+    s.connect((config.HOST_TW, config.PORT_TW))
+    s.send('PASS {}\r\n'.format("oauth:" + chanInfo.twitchApiToken).encode('utf-8'))
+    s.send('NICK {}\r\n'.format(config.NICK_TW).encode('utf-8'))
+    s.send('JOIN #{}\r\n'.format("rocksun_wow").encode('utf-8'))
+    time.strftime("%I:%M %B %d %Y")
+
+
+def getUser(userName):
     Session = sessionmaker(bind=engine)
     session = Session()
-    chanInfo = session.query(User).filter(User.user_login.in_([connectChan])).first()
-    # print(chanInfo.twitchApiToken)
-    s.connect((config.HOST_TW, config.PORT_TW))
-    s.send('PASS {}\r\n'.format(chanInfo.twitchApiToken).encode('utf-8'))
-    s.send('NICK {}\r\n'.format(config.NICK_TW).encode('utf-8'))
-    s.send('JOIN #{}\r\n'.format(chan).encode('utf-8'))
-    time.strftime("%I:%M %B %d %Y")
+    chanInfo = session.query(User).filter(User.user_login.in_([userName])).first()
+    return chanInfo
 
 
 def startChatBot(chan):
@@ -31,19 +37,23 @@ def startChatBot(chan):
     timecount = time.time()
     thread.start_new_thread(utils.fillOpList, (chan,))
     while True:
-        if time.time() - timecount >= 25*60:
-            utils.mess(s, chan, 'MEMES AND ANNOUNCES => https://discord.gg/UnUhDNz <=')
+        if time.time() - timecount >= 25 * 60:
+            utils.mess(s, chan, 'MEMES AND announcements =>'.upper() + 'https://discord.gg/UnUhDNz <=')
             timecount = time.time()
 
-        try:
-            rawResponse = s.recv(1024).decode('utf-8')
-        except ConnectionResetError:
-            getConnection(s)
-        #print('===== Start of rawResponse =====\n', rawResponse, end='===== End of rawResponse =====\n')
+        # try:
+        rawResponse = s.recv(1024).decode('utf-8')
+        # except ConnectionResetError:
+        #    getConnection(s)
+        # print('===== Start of rawResponse =====\n', rawResponse, end='===== End of rawResponse =====\n')
 
         if str(rawResponse)[0:19] in 'PING :tmi.twitch.tv':
             s.send("PONG :tmi.twitch.tv\r\n".encode('utf-8'))
-
+        elif str(rawResponse).__contains__("Login unsuccessful"):
+            utils.refreshToken(getUser(chan))
+            s.close()
+            s = socket.socket()
+            getConnection(s, chan)
         else:
             try:
                 username = str(rawResponse).split('!')[0][1:]
@@ -70,7 +80,8 @@ def startChatBot(chan):
             if ('bigfollows' in message.lower()) and ('com' in message.lower()):
                 reason = 'Advertising'
                 utils.ban(s, chan, username, reason)
-                print('User: "%s" was banned for the "%s"' % (username, reason), end='\n=====================================\n')
+                print('User: "%s" was banned for the "%s"' % (username, reason),
+                      end='\n=====================================\n')
 
         time.sleep(1)
 
@@ -78,9 +89,9 @@ def startChatBot(chan):
 if __name__ == '__main__':
     print('Loading data')
     name = os.path.join('logs', 'log_%s.txt' % time.strftime("%H:%M_%m.%d.%Y"))
-    #file = open(name, 'w')
-    #sys.stdout = file
-    #sys.stderr = file
+    # file = open(name, 'w')
+    # sys.stdout = file
+    # sys.stderr = file
     parser = argparse.ArgumentParser(description='Test')
     parser.add_argument("--test", default=False, help="Test mod")
     test = parser.parse_args().test
@@ -113,8 +124,7 @@ if __name__ == '__main__':
         if status == 0:
             if info['data'][0]['started_at'] != user.date:
                 print('Отправляю уведомление')
-                utils.send_message(server, '@everyone %s https://www.twitch.tv/rocksun_wow' %
-                             info['data'][0]['title'])
+                # utils.send_message(server, '@everyone %s https://www.twitch.tv/rocksun_wow' % info['data'][0]['title'])
                 user.date = info['data'][0]['started_at']
                 print('Уведомление отправленно \nNew time: %s' % user.date)
                 session.commit()
